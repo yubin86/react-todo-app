@@ -17,7 +17,7 @@ function App() {
   const [editDescriptionContent, setEditDescriptionContent] = useState(
     currentTodo.description
   );
-
+  console.log("Hello World");
   async function getTodos() {
     const res = await axios.get("http://localhost:3333/api/todos");
     console.log(res);
@@ -62,6 +62,28 @@ function App() {
       }
     } catch (error) {
       setNotification("Failed! :(");
+    }
+  }
+
+  async function handleEdit(todoId) {
+    const title = editTitleContent;
+    const description = editDescriptionContent;
+    const newTodo = { title: title, description: description };
+    try {
+      const res = await axios.patch(
+        `http://localhost:3333/api/todos/todo/${todoId}`,
+        newTodo
+      );
+      if (res.status === 200) {
+        setNotification("Success!");
+        setEditMode(false);
+      } else {
+        setNotification("Failed! :(");
+        setEditMode(false);
+      }
+    } catch (error) {
+      setNotification(error.toString());
+      setEditMode(false);
     }
   }
 
@@ -149,18 +171,27 @@ function App() {
                   </div>
                 )}
               </div>
-              <div
-                onClick={() => {
-                  setCurrentTodoId(todo.todoId);
-                  setCurrentTodo(todo);
-                  setEditTitleContent(todo.title);
-                  setEditDescriptionContent(todo.description);
-                  setEditMode(true);
-                }}
-                className="p-3 bg-yellow-600 text-white flex items-center cursor-pointer hover:bg-yellow-400 hover:text-yellow-800 transition-all ease-in-out duration-300 font-bold"
-              >
-                EDIT
-              </div>
+              {editMode && currentTodoId === todo.todoId ? (
+                <div
+                  onClick={() => handleEdit(todo.todoId)}
+                  className="p-3 bg-green-600 text-white flex items-center cursor-pointer hover:bg-green-400 hover:text-green-800 transition-all ease-in-out duration-300 font-bold"
+                >
+                  APPLY
+                </div>
+              ) : (
+                <div
+                  onClick={() => {
+                    setCurrentTodoId(todo.todoId);
+                    setCurrentTodo(todo);
+                    setEditTitleContent(todo.title);
+                    setEditDescriptionContent(todo.description);
+                    setEditMode(true);
+                  }}
+                  className="p-3 bg-yellow-600 text-white flex items-center cursor-pointer hover:bg-yellow-400 hover:text-yellow-800 transition-all ease-in-out duration-300 font-bold"
+                >
+                  EDIT
+                </div>
+              )}
               {editMode && currentTodoId === todo.todoId ? (
                 <div
                   onClick={() => {
